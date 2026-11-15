@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyFlow.Models;
-using StudyFlow.ViewModels;
+using StudyFlow.DTOs; 
 using StudyFlow.DAL;
 
 
@@ -22,6 +22,10 @@ namespace StudyFlow.Controllers
             _userManager = userManager;
         }
 
+        
+        
+        
+     
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> Index()
@@ -32,7 +36,6 @@ namespace StudyFlow.Controllers
 
             return View(bookings);
         }
-
        
 
         [HttpGet]
