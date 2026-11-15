@@ -7,9 +7,12 @@ namespace StudyFlow.DAL
     {
         private readonly StudyFlowDbContext _context;
 
-        public BookingRepository(StudyFlowDbContext context)
+        private readonly ILogger<BookingRepository> _logger;
+
+        public BookingRepository(StudyFlowDbContext context, ILogger<BookingRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // excludeBookingId lets an update ignore the booking being edited,
@@ -27,11 +30,25 @@ namespace StudyFlow.DAL
                 startTime < b.EndTime);
         }
 
-        public async Task<Booking> CreateAsync(Booking booking)
+        public async Task<IEnumerable<Booking>?> GetAll()
+        {
+            try
+            {
+                return await _context.Bookings.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("[BookingRepository] Bookings to list failed with getAll(), error message: {e}", e.Message); 
+
+                return null;
+            }
+        }
+
+        public async Task<bool> CreateAsync(Booking booking)
         {
             _context.Bookings.Add(booking);
             await _context.SaveChangesAsync();
-            return booking; // Id is populated after SaveChanges
+            return true; // Id is populated after SaveChanges
         }
 
         // Returns false if the booking does not exist.
@@ -57,11 +74,14 @@ namespace StudyFlow.DAL
         public async Task<bool> DeleteAsync(int id)
         {
             var booking = await _context.Bookings.FindAsync(id);
+
+            //Check booking exists
             if (booking == null)
             {
                 return false;
             }
 
+            //Remove Booking
             _context.Bookings.Remove(booking);
             await _context.SaveChangesAsync();
             return true;

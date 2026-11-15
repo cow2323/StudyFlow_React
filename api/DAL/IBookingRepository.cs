@@ -10,7 +10,11 @@ namespace StudyFlow.DAL
             DateTime endTime,
             int? excludeBookingId = null);
 
-        Task<Booking> CreateAsync(Booking booking);
+
+
+        Task<IEnumerable<Booking>?> GetAll(); 
+
+        Task<bool> CreateAsync(Booking booking);
 
         Task<bool> UpdateAsync(Booking booking);
 

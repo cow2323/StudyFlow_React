@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
        .AllowAnyMethod().AllowAnyHeader().AllowCredentials());
 }); 
 
-//builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 
 var loggerConfiguration = new LoggerConfiguration()
    .MinimumLevel.Warning()

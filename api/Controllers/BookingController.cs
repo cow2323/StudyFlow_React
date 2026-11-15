@@ -1,131 +1,129 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+//using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyFlow.Models;
 using StudyFlow.DTOs; 
 using StudyFlow.DAL;
+namespace StudyFlow.Controllers; 
 
 
-namespace StudyFlow.Controllers
-{
-    public class BookingController : Controller
+[ApiController]
+[Route("api/[controller]")]
+    public class BookingAPIController : ControllerBase
     {
-        private readonly StudyFlowDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IBookingRepository _bookingRepository;
+        private readonly ILogger<BookingAPIController> _logger;
+
+        //private readonly UserManager<IdentityUser> _userManager; 
 
 
-
-        public BookingController(UserManager<IdentityUser> userManager, StudyFlowDbContext context)
+        public BookingAPIController( IBookingRepository bookingRepository, ILogger<BookingAPIController> logger)
         {
-            _context = context;
-            _userManager = userManager;
+            _bookingRepository = bookingRepository;
+            _logger = logger;
+
+           // _userManager = userManager; 
         }
 
         
         
         
      
-        [HttpGet]
-        [Authorize]
-        public async Task<IActionResult> Index()
+        [HttpGet("bookinglist")]
+        //[Authorize]
+        public async Task<IActionResult> BookingList()
         {
-            var bookings = await _context.Bookings
-                .OrderBy(b => b.StartTime)
-                .ToListAsync();
+            var bookings = await _bookingRepository.GetAll();
 
-            return View(bookings);
+            if (bookings == null)
+            {
+                _logger.LogError("[BookingAPICOntroller] Bookings list cannot be found while excecuting GetAll()");
+                return NotFound("Item List Not Found");
+            } 
+
+
+                IEnumerable<Booking> bookingList = bookings.OrderBy(b => b.StartTime);
+                var bookingDtos = bookingList.Select(booking => new BookingDto
+                {
+                    RoomId = booking.RoomId,
+                    StartTime = booking.StartTime,
+                    EndTime = booking.EndTime
+
+                });
+
+
+
+            return Ok(bookingDtos);
         }
        
 
-        [HttpGet]
-        [Authorize]
-        public IActionResult Create(int? roomId)
-
-        {
-            if (!roomId.HasValue || roomId.Value <= 0)
-            {
-                return RedirectToAction("Index", "Room");
-            }
-
-            return View(new BookingCreateViewModel
-            {
-                RoomId = roomId.Value,
-                StartTime = DateTime.Now.AddHours(1),
-                EndTime = DateTime.Now.AddHours(2)
-            });
-        }
 
 
-        [HttpPost]
-        [Authorize]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(BookingCreateViewModel model)
+        //[Authorize]
+        [HttpPost("create")]
+        //[Authorize]
+        //[ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([FromBody] BookingDto bookingDto)
         {
 
+            // Convert Time to recognized format
+            DateTime start = bookingDto.StartTime.ToUniversalTime();
+            DateTime end = bookingDto.EndTime.ToUniversalTime();
 
-            //Get User 
+
+            //Legg Til Hent Bruker 
 
 
-            string? userId = _userManager.GetUserId(User);
+            //string? userId = _userManager.GetUserId(User);
             
 
-
+/*
 
             if (string.IsNullOrEmpty(userId))
             {
-                return RedirectToAction("Login", "User");
+                return BadRequest("Must be logged in");
             }
-            if (model.StartTime < DateTime.Now)
-            {
-                ModelState.AddModelError(
-                    nameof(model.StartTime),
-                    "Du kan ikke booke et rom i fortiden.");
-            }
+*/
 
-            if (model.EndTime <= model.StartTime)
+            if (start < DateTime.Now)
             {
-                ModelState.AddModelError(
-                    nameof(model.EndTime),
-                    "Sluttid må være etter starttid.");
+               return BadRequest("Start Time must be later");
             }
 
-            if (ModelState.IsValid)
+            if (end <= start)
             {
-                bool overlap = await _context.Bookings.AnyAsync(b =>
-                    b.RoomId == model.RoomId &&
-                    b.StartTime < model.EndTime &&
-                    model.StartTime < b.EndTime);
-
-                if (overlap)
-                {
-                    ModelState.AddModelError(
-                        nameof(model.RoomId),
-                        "Rommet er allerede booket.");
-                }
+                 return BadRequest("Sluttid må være etter starttid.");
             }
 
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+            // Attempt to add booking
+            
+            bool overlap = await _bookingRepository.HasOverlapAsync(
+                bookingDto.RoomId,
+                start,
+                end); 
 
-            var booking = new Booking
+            if (overlap) 
+            { return BadRequest("Room is booked");}
+
+            var newBooking = new Booking
             {
-                UserId = userId,
-                RoomId = model.RoomId,
-                StartTime = model.StartTime,
-                EndTime = model.EndTime
+                RoomId = bookingDto.RoomId,
+                StartTime = start, 
+                EndTime = end 
             };
+            bool returnOk = await _bookingRepository.CreateAsync(newBooking); 
+            if (returnOk)
+                return CreatedAtAction(nameof(BookingList), newBooking); 
 
-            _context.Bookings.Add(booking);
-            await _context.SaveChangesAsync();
+            _logger.LogWarning("[BookingAPIController] new Booking failed ", newBooking);
 
-            return View("Confirmed", "Booking");
+            return StatusCode(500, "Internal Server Error"); 
+        
         }
-
+/*
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> Edit(int id)
         {
             var booking = await _context.Bookings.FindAsync(id);
@@ -205,6 +203,5 @@ namespace StudyFlow.Controllers
             }
 
             return RedirectToAction(nameof(Index));
-        }
+        }*/
     }
-}
