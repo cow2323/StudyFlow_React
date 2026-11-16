@@ -25,8 +25,8 @@ function BookingForm() {
 
     const booking = {
       roomId: Number(roomId),
-      startDateTime,
-      endDateTime
+      startTime: startDateTime,
+      endTime: endDateTime
     };
 
     console.log(booking);

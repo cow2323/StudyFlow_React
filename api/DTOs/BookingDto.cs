@@ -7,7 +7,7 @@ public class BookingDto
     
 
         [Required]
-        [Range(0, int.MaxValue, ErrorMessage = "Value Must be 1 or greater")]
+        [Range(1, int.MaxValue, ErrorMessage = "Value Must be 1 or greater")]
         public int RoomId { get; set; }
 
         [Required]
