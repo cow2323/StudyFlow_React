@@ -1,7 +1,7 @@
-import BookingForm from "./components/BookingForm";
+import StudySession from "./components/StudySession";
 
 function App() {
-  return <BookingForm />;
+  return <StudySession />;
 }
 
 export default App;
