@@ -1,3 +1,4 @@
+import { createBooking } from "../services/bookingService";
 import { useState } from "react";
 
 function BookingForm() {
@@ -7,7 +8,7 @@ function BookingForm() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
     setError("");
@@ -29,9 +30,12 @@ function BookingForm() {
       endTime: endDateTime
     };
 
-    console.log(booking);
-
-    setMessage("Booking data is ready.");
+    try {
+      await createBooking(booking);
+      setMessage("Booking created.");
+    } catch (error) {
+      setError(error.message);
+    }
   }
 
   return (
