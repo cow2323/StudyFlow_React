@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using StudyFlow.Models;
 using StudyFlow.DTOs; 
 using StudyFlow.DAL;
+using System.Security.Claims;
 namespace StudyFlow.Controllers; 
 
 
@@ -31,7 +32,7 @@ namespace StudyFlow.Controllers;
         
      
         [HttpGet("bookinglist")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> BookingList()
         {
             var bookings = await _bookingRepository.GetAll();
@@ -60,7 +61,7 @@ namespace StudyFlow.Controllers;
 
 
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("create")]
         //[Authorize]
         //[ValidateAntiForgeryToken]
@@ -75,16 +76,16 @@ namespace StudyFlow.Controllers;
             //Legg Til Hent Bruker 
 
 
-            //string? userId = _userManager.GetUserId(User);
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
             
 
-/*
+
 
             if (string.IsNullOrEmpty(userId))
             {
                 return BadRequest("Must be logged in");
             }
-*/
+
 
             if (start < DateTime.Now)
             {
@@ -108,6 +109,7 @@ namespace StudyFlow.Controllers;
 
             var newBooking = new Booking
             {
+                UserId = userId, 
                 RoomId = bookingDto.RoomId,
                 StartTime = start, 
                 EndTime = end 
