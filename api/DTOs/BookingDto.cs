@@ -16,5 +16,7 @@ public class BookingDto
         [Required]
         public DateTime EndTime { get; set; }
 
+        
+
 
 }

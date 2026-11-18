@@ -1,21 +1,15 @@
 namespace StudyFlow.Models
 {
-    public class StudySession
+    public class StudySession : Booking
     {
-        public int Id { get; set; }
-     
-        public required virtual Booking BookingReference {get; set;} 
-        public int RoomId { get; set; }
+       
         public string Course { get; set; } = string.Empty;
         public string Topic { get; set; } = string.Empty;
         public string? Description { get; set; }
-        
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        
+         
         public bool IsPublic { get; set; } = true;
 
-        //public List<StudySessionParticipant> Participants {get; set;} = new List<StudySessionParticipant>();
+        public List<StudySessionParticipant> Participants {get; set;} = new List<StudySessionParticipant>();
         
 
     }

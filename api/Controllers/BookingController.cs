@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudyFlow.Models;
@@ -16,7 +15,7 @@ namespace StudyFlow.Controllers;
         private readonly IBookingRepository _bookingRepository;
         private readonly ILogger<BookingAPIController> _logger;
 
-        //private readonly UserManager<IdentityUser> _userManager; 
+         
 
 
         public BookingAPIController( IBookingRepository bookingRepository, ILogger<BookingAPIController> logger)
@@ -57,14 +56,35 @@ namespace StudyFlow.Controllers;
 
             return Ok(bookingDtos);
         }
+
+
+        [HttpGet("getById")]
+        [Authorize]
+        public async Task<IActionResult> GetById(int id)
+    {
+
+        var booking = await _bookingRepository.GetById(id); 
+        if (booking !=null)
+        {
+            return Ok(new BookingDto{
+                RoomId = booking.RoomId, 
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+            
+            }); 
+        }
+
+          _logger.LogWarning("[BookingApiController] Get booking {bookingID} failed", id); 
+            return StatusCode(500, "Internal Server Error");
+    }
+       
+
        
 
 
 
         [Authorize]
         [HttpPost("create")]
-        //[Authorize]
-        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromBody] BookingDto bookingDto)
         {
 
@@ -116,94 +136,101 @@ namespace StudyFlow.Controllers;
             };
             bool returnOk = await _bookingRepository.CreateAsync(newBooking); 
             if (returnOk)
-                return CreatedAtAction(nameof(BookingList), newBooking); 
+                return CreatedAtAction(nameof(BookingList), new BookingDto
+                {
+                    RoomId = newBooking.RoomId,
+                    StartTime = newBooking.StartTime, 
+                    EndTime = newBooking.EndTime
+                }); 
 
             _logger.LogWarning("[BookingAPIController] new Booking failed ", newBooking);
 
             return StatusCode(500, "Internal Server Error"); 
         
         }
-/*
-        [HttpGet]
-        //[Authorize]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var booking = await _context.Bookings.FindAsync(id);
 
+        [HttpPut("update/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Edit([FromBody] BookingDto bookingDto,
+            int id)
+        {
+
+            // Find Booking
+            var booking = await _bookingRepository.GetById(id); 
             if (booking == null)
             {
-                return NotFound();
+                return NotFound("Booking Not Found");
             }
 
-            return View(booking);
-        }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Edit(
-            int id,
-            [Bind("Id,RoomId,StartTime,EndTime")] Booking booking)
-        {
-            if (id != booking.Id)
+            DateTime start = bookingDto.StartTime.ToUniversalTime();
+            DateTime end = bookingDto.EndTime.ToUniversalTime();
+ 
+
+
+            //Check Booking belongs to correct user
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (booking.UserId != userId) return Forbid();
+
+
+             if (start < DateTime.Now)
             {
-                return NotFound();
+               return BadRequest("Start Time must be later");
             }
 
-            if (booking.EndTime <= booking.StartTime)
+            if (end  <= start )
             {
-                ModelState.AddModelError(
-                    nameof(Booking.EndTime),
-                    "Sluttid må være etter starttid.");
+                return BadRequest("End Time must Be after StartTime.");
             }
-
-            var overlap = await _context.Bookings.AnyAsync(b =>
-                b.Id != booking.Id &&
-                b.RoomId == booking.RoomId &&
-                b.StartTime < booking.EndTime &&
-                booking.StartTime < b.EndTime);
+        //Check oiverlapo OK
+            var overlap = await _bookingRepository.HasOverlapAsync(
+                bookingDto.RoomId, 
+                start, 
+                end,
+                excludeBookingId: id);
 
             if (overlap)
             {
-                ModelState.AddModelError(
-                    nameof(Booking.RoomId),
-                    "Rommet er allerede booket i dette tidsrommet.");
+                return BadRequest("Room is already booked in this time slot.");
             }
 
-            if (!ModelState.IsValid)
+            booking.RoomId = bookingDto.RoomId;
+            booking.StartTime = start;
+            booking.EndTime = end;
+
+            var returnOk = await _bookingRepository.UpdateAsync(booking);
+
+            if (returnOk){return Ok(new BookingDto
             {
-                return View(booking);
+                RoomId = booking.RoomId, 
+                StartTime = start,
+                EndTime = end,
+               // IsStudySession = booking.IsStudySession
+            });
             }
-
-            var existingBooking = await _context.Bookings.FindAsync(id);
-
-            if (existingBooking == null)
-            {
-                return NotFound();
-            }
-
-            existingBooking.RoomId = booking.RoomId;
-            existingBooking.StartTime = booking.StartTime;
-            existingBooking.EndTime = booking.EndTime;
-
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
+            _logger.LogWarning("[BookingApiController] Updating booking {bookingID} failed", id); 
+            return StatusCode(500, "Internal Server Error");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+     
+     
+        [HttpDelete("delete/{id}")]
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            var booking = await _context.Bookings.FindAsync(id);
 
-            if (booking != null)
-            {
-                _context.Bookings.Remove(booking);
-                await _context.SaveChangesAsync();
-            }
+            var booking = await _bookingRepository.GetById(id); 
 
-            return RedirectToAction(nameof(Index));
-        }*/
+             //Check Booking belongs to correct user
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (booking != null && booking.UserId != userId) return Forbid();
+
+
+
+            var returnOk = await _bookingRepository.DeleteAsync(id);  
+            if (returnOk) return Ok("Booking Deleted!"); 
+
+
+            return StatusCode(500, "Internal Server Error");
+        }
     }

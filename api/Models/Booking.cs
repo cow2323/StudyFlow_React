@@ -16,5 +16,7 @@ namespace StudyFlow.Models
         public string? Subject { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
+        public bool IsStudySession {get; set;} = false; 
+
     }
 }

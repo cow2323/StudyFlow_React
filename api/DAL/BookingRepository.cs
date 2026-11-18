@@ -44,6 +44,20 @@ namespace StudyFlow.DAL
             }
         }
 
+        public async Task<Booking> GetById(int id)
+        {
+            try
+            {
+                return await _context.Bookings.FindAsync(id);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"[BookingRepository] Bookings GetBy(Id) failed to get: {id}, \n Error Message: {e.Message}"); 
+
+                return null;
+            }
+        }
+
         public async Task<bool> CreateAsync(Booking booking)
         {
             _context.Bookings.Add(booking);

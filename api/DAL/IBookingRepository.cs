@@ -14,6 +14,8 @@ namespace StudyFlow.DAL
 
         Task<IEnumerable<Booking>?> GetAll(); 
 
+        Task<Booking?> GetById(int id); 
+
         Task<bool> CreateAsync(Booking booking);
 
         Task<bool> UpdateAsync(Booking booking);
