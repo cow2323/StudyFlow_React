@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+
+# .NET build files
+api/bin/
+api/obj/
+
+# Local database
+api/StudyFlowDatabase.db
+
+# Visual Studio / local user files
+.vs/
+*.user
