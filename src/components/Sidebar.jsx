@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-
+import AuthSection from "../auth/AuthSection"; 
 export default function Sidebar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -27,10 +27,9 @@ export default function Sidebar() {
         My Bookings
       </NavLink>
 
-      <NavLink className="nav-link text-white py-2" to="/login" onClick={() => setMenuOpen(false)}>
-        <i className="bi bi-box-arrow-in-right me-2" aria-hidden="true"></i>
-        Login
-      </NavLink>
+      <div>
+      <AuthSection />
+      </div>
     </nav>
   );
 

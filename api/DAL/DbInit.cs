@@ -2,7 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using StudyFlow.Models;
+
+
+
 namespace StudyFlow.DAL;
+
 
     public static class DbInit
     {
@@ -14,33 +18,40 @@ namespace StudyFlow.DAL;
             context.Database.EnsureDeleted(); 
             context.Database.EnsureCreated();
 
-            //UserManager<IdentityUser> userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
-        
-/*
+            //--------Seed Users (AuthDbContext) ----------
 
-//seed users
-        if (!context.AspNetUsers.Any())
+
+var authContext = serviceScope.ServiceProvider.GetRequiredService<AuthDbContext>(); 
+authContext.Database.Migrate(); //Migrates existing DB / and creates AuthDB if missing
+
+var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<AuthUser>>(); 
     {
-            var users = new List<IdentityUser> {
-                new IdentityUser { UserName = "user1", Email = "user1@users.com"},
-                new IdentityUser { UserName = "user2", Email = "user2@users.com"},
-                new IdentityUser { UserName = "user3", Email = "user3@users.com"} 
+            var seedUsers = new List<AuthUser> {
+                new AuthUser { UserName = "user1", Email = "user1@users.com"},
+                new AuthUser { UserName = "user2", Email = "user2@users.com"},
+                new AuthUser { UserName = "user3", Email = "user3@users.com"} 
                 
                 }; 
                 
-                for (int i = 0; i < users.Count; i++)
+                for (int i = 0; i < seedUsers.Count; i++)
                 {
-                    IdentityUser user = users[i];
+
+                    AuthUser user = seedUsers[i];
+
+                    //If user Doesnt exist we want to create SEED user
+                    if(userManager.FindByNameAsync(user.UserName!).Result == null){
+
                     var result = userManager.CreateAsync(user, "Password123!").Result;
                     
                     if (!result.Succeeded)
                     {
                         throw new Exception($"Failed to create user {user.UserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
                     }
+                    }
                 
                 }
-*/
+
 
 
         if (!context.Rooms.Any())
@@ -106,7 +117,7 @@ namespace StudyFlow.DAL;
     
             }
 
-        }
+        }}
     
     
     

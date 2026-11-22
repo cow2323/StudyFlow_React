@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createBooking } from "../services/bookingService";
+import { createBooking } from "../services/BookingService";
 
 function BookingForm() {
   const [roomId] = useState(10);

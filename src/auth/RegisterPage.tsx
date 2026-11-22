@@ -1,14 +1,16 @@
 import {useState, useEffect} from 'react'; 
 import {useNavigate} from 'react-router-dom'; 
 import {Form, Button, Container, Alert, Spinner} from 'react-bootstrap';
-import * as authService from './AuthService'; 
+import * as authService from './AuthService';
+import { RegisterDto } from '../types/auth';
 
-export default function RegisterPage() {
-    const [formData, setFormData] = useState({
+export default function RegisterPage({ onRegistered } : {onRegistered? : () => void }) {
+    const [formData, setFormData] = useState<RegisterDto>({
         username: '',
-        email:'', 
-        password:'', 
-    }); 
+        email:'',
+        password:'',
+        confirmPassword: '',
+    });
     const [error,setError] = useState<string | null>(null); 
     const [success, setSuccess] = useState<string | null>(null); 
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false); 
@@ -24,7 +26,7 @@ export default function RegisterPage() {
 
         if (success) {
             timerID = setTimeout(() => {
-                navigate('/login');
+                onRegistered ? onRegistered() : navigate('/login');
             }, 2000); 
         }
         return () => clearTimeout(timerID);
@@ -34,6 +36,12 @@ export default function RegisterPage() {
         e.preventDefault(); 
         setError(null);
         setSuccess(null);
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords must match!');
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -66,9 +74,21 @@ export default function RegisterPage() {
             </Form.Group>
 
             <Form.Group className="mb-3">
+                <Form.Label>Email</Form.Label>
+                <Form.Control type="email" name="email" value={formData.email}
+                onChange={handleChange} disabled={isSubmitting || !!success} required/>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
 
                 <Form.Label>Password</Form.Label>
-                <Form.Control type="password" name="password" value={formData.password} 
+                <Form.Control type="password" name="password" value={formData.password}
+                onChange={handleChange} disabled={isSubmitting || !!success} required/>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control type="password" name="confirmPassword" value={formData.confirmPassword}
                 onChange={handleChange} disabled={isSubmitting || !!success} required/>
             </Form.Group>
 

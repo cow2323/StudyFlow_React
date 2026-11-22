@@ -3,7 +3,7 @@ import {useNavigate } from 'react-router-dom';
 import {Form, Button, Container, Alert, Spinner } from 'react-bootstrap'; 
 import { useAuth } from './AuthContext';
 
-export default function LoginForm() {
+export default function LoginForm({onLogin}: {onLogin? : () => void}) {
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +20,7 @@ export default function LoginForm() {
     setIsSubmitting(true);
     try {
       await login({username, password });
-      navigate('/items'); 
+      navigate('/Sessions'); 
     } catch(err) {
       if (err instanceof Error) {
         setError(err.message);

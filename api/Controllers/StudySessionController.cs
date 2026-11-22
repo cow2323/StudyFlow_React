@@ -32,6 +32,8 @@ public class StudySessionAPIController : ControllerBase
     [Authorize]
     public async Task<IActionResult> SessionList()
     {
+        //Return List of all sessions
+
         var sessions = await _sessionRepository.GetAll();
 
         if (sessions == null)
@@ -39,8 +41,8 @@ public class StudySessionAPIController : ControllerBase
             _logger.LogError("[StudySessionAPIController] Session list cannot be found while executing GetAll()");
             return NotFound("Session list not found");
         }
-
-        var sessionDtos = sessions.Select(ToDto);
+        IEnumerable<StudySession> sessionList = sessions.OrderBy(s => s.StartTime); 
+        var sessionDtos = sessionList.Select(ToDto);
 
         return Ok(sessionDtos);
     }
@@ -191,7 +193,7 @@ public class StudySessionAPIController : ControllerBase
     }
 
 
-    [HttpPost("join/{id:int}")]
+    [HttpPut("join/{id:int}")]
     [Authorize]
     public async Task<IActionResult> Join(int id)
     {
