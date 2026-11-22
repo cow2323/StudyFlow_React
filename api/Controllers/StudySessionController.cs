@@ -28,7 +28,6 @@ public class StudySessionAPIController : ControllerBase
     }
 
 
-    // GET api/StudySessionAPI/sessionlist
     [HttpGet("sessionlist")]
     [Authorize]
     public async Task<IActionResult> SessionList()
@@ -47,7 +46,7 @@ public class StudySessionAPIController : ControllerBase
     }
 
 
-    // GET api/StudySessionAPI/5
+
     [HttpGet("{id:int}")]
     [Authorize]
     public async Task<IActionResult> GetById(int id)
@@ -63,7 +62,6 @@ public class StudySessionAPIController : ControllerBase
     }
 
 
-    // POST api/StudySessionAPI/create
     [HttpPost("create")]
     [Authorize]
     public async Task<IActionResult> Create([FromBody] StudySessionDto sessionDto)
@@ -118,7 +116,6 @@ public class StudySessionAPIController : ControllerBase
     }
 
 
-    // PUT api/StudySessionAPI/update/5
     [HttpPut("update/{id:int}")]
     [Authorize]
     public async Task<IActionResult> Edit(int id, [FromBody] StudySessionDto sessionDto)
@@ -169,7 +166,6 @@ public class StudySessionAPIController : ControllerBase
     }
 
 
-    // DELETE api/StudySessionAPI/delete/5
     [HttpDelete("delete/{id:int}")]
     [Authorize]
     public async Task<IActionResult> Delete(int id)
@@ -195,7 +191,6 @@ public class StudySessionAPIController : ControllerBase
     }
 
 
-    // POST api/StudySessionAPI/join/5
     [HttpPost("join/{id:int}")]
     [Authorize]
     public async Task<IActionResult> Join(int id)
@@ -278,6 +273,7 @@ public class StudySessionAPIController : ControllerBase
 
     private static StudySessionDto ToDto(StudySession session) => new StudySessionDto
     {
+        //Helper method to make DTO objects
         Id = session.Id,
         RoomId = session.RoomId,
         Course = session.Course,
