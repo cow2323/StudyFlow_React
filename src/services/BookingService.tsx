@@ -1,7 +1,7 @@
 import {Booking} from '../types/booking';
 import {StudySession} from '../types/studysession';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "http://localhost:5245";
 
 const headers = {
     'Content-Type':'application/json',

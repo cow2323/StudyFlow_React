@@ -1,5 +1,5 @@
 import { useState } from "react";
-import * as BookingService from '../services/BookingService'; 
+
 
 function StudySession() {
   const [search, setSearch] = useState("");

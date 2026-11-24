@@ -126,6 +126,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IStudySessionRepository, StudySessionRepository>();
+builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 
 var loggerConfiguration = new LoggerConfiguration()
    .MinimumLevel.Warning()

@@ -1,17 +1,24 @@
 import { useState } from "react";
-import { createBooking } from "../services/BookingService";
+import { createBooking } from "../services/bookingService";
 
-function BookingForm() {
-  const [roomId] = useState(10);
+function BookingForm({ selectedRoomId = "" }) {
+  const [roomId, setRoomId] = useState(selectedRoomId);
   const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("10:00");
-  const [endTime, setEndTime] = useState("12:00");
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const now = new Date();
+  const today = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, "0"),
+    String(now.getDate()).padStart(2, "0")
+  ].join("-");
 
   async function handleSubmit(event) {
     event.preventDefault();
-
     setError("");
     setMessage("");
 
@@ -34,127 +41,118 @@ function BookingForm() {
       endTime: endDateTime
     };
 
+    setSaving(true);
+
     try {
       await createBooking(booking);
       setMessage("Booking created.");
     } catch (error) {
-      setError(error.message);
+      setError(error.message || "Could not create booking.");
+    } finally {
+      setSaving(false);
     }
   }
 
   return (
-    <main className="container py-4" style={{ maxWidth: "1200px" }}>
-      <a href="/" className="text-decoration-none d-inline-block mb-4">
-        ← Back to rooms
-      </a>
+    <div>
+      <h3 className="fw-bold mb-4">Book this room</h3>
 
-      <section className="card border-0 shadow-sm rounded-4">
-        <div className="card-body p-4">
+      <form onSubmit={handleSubmit}>
+        {selectedRoomId === "" && (
+          <div className="mb-3">
+            <label htmlFor="booking-room" className="form-label">
+              Room ID
+            </label>
+            <input
+              id="booking-room"
+              type="number"
+              className="form-control"
+              min="1"
+              step="1"
+              value={roomId}
+              onChange={(event) => setRoomId(event.target.value)}
+              required
+            />
+          </div>
+        )}
 
-          <section className="row align-items-center g-4 mb-4">
-            <div className="col-md-5">
-              <div
-                className="bg-light rounded-4 d-flex flex-column align-items-center justify-content-center"
-                style={{ minHeight: "220px" }}
-              >
-                <p className="text-muted mb-0">
-                  No room image available
-                </p>
-              </div>
-            </div>
+        <div className="row g-3 mb-4">
+          <div className="col-md-4">
+            <label htmlFor="booking-date" className="form-label">
+              Date
+            </label>
+            <input
+              id="booking-date"
+              type="date"
+              className="form-control"
+              min={today}
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+              required
+            />
+          </div>
 
-            <div className="col-md-7">
-              <h1 className="fw-bold mb-3 fs-2">
-                Room 10
-              </h1>
+          <div className="col-md-4">
+            <label htmlFor="booking-start" className="form-label">
+              Start time
+            </label>
+            <input
+              id="booking-start"
+              type="text"
+              className="form-control"
+              placeholder="10:00"
+              pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+              maxLength={5}
+              title="Enter a time from 00:00 to 23:59"
+              value={startTime}
+              onChange={(event) => setStartTime(event.target.value.replace(".", ":"))}
+              required
+            />
+          </div>
 
-              <p>
-                <strong>Capacity:</strong> 16 people
-              </p>
-
-              <p>
-                <strong>Location:</strong> Pilestredet 32, Oslo
-              </p>
-
-              <p className="mb-0">
-                Large Study Room
-              </p>
-            </div>
-          </section>
-
-          <hr />
-
-          <h2 className="fw-bold my-4 fs-3">
-            Book this room
-          </h2>
-
-          <form onSubmit={handleSubmit}>
-            <div className="row g-3">
-
-              <div className="col-md-4">
-                <label className="form-label">
-                  Date
-                </label>
-
-                <input
-                  type="date"
-                  className="form-control"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                />
-              </div>
-
-              <div className="col-md-4">
-                <label className="form-label">
-                  Start Time
-                </label>
-
-                <input
-                  type="time"
-                  className="form-control"
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                />
-              </div>
-
-              <div className="col-md-4">
-                <label className="form-label">
-                  End Time
-                </label>
-
-                <input
-                  type="time"
-                  className="form-control"
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                />
-              </div>
-
-            </div>
-
-            {error && (
-              <div className="alert alert-danger mt-3">
-                {error}
-              </div>
-            )}
-
-            {message && (
-              <div className="alert alert-success mt-3">
-                {message}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="btn btn-primary w-100 mt-4"
-            >
-              Book Room
-            </button>
-          </form>
-
+          <div className="col-md-4">
+            <label htmlFor="booking-end" className="form-label">
+              End time
+            </label>
+            <input
+              id="booking-end"
+              type="text"
+              className="form-control"
+              placeholder="12:00"
+              pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+              maxLength={5}
+              title="Enter a time from 00:00 to 23:59"
+              value={endTime}
+              onChange={(event) => setEndTime(event.target.value.replace(".", ":"))}
+              required
+            />
+          </div>
         </div>
-      </section>
-    </main>
+
+        <p className="text-muted small"> Enter start and end times, for example 10:00–12:00.
+        </p>
+
+        {error && (
+          <p className="alert alert-danger" role="alert">
+            {error}
+          </p>
+        )}
+
+        {message && (
+          <p className="alert alert-success" role="status">
+            {message}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          className="btn btn-primary w-100 py-2"
+          disabled={saving}
+        >
+          {saving ? "Booking..." : "Book Room"}
+        </button>
+      </form>
+    </div>
   );
 }
 
