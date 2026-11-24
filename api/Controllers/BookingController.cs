@@ -58,7 +58,7 @@ namespace StudyFlow.Controllers;
         }
 
 
-        [HttpGet("getById")]
+        [HttpGet("{id:int}")]
         [Authorize]
         public async Task<IActionResult> GetById(int id)
     {
@@ -132,7 +132,8 @@ namespace StudyFlow.Controllers;
                 UserId = userId, 
                 RoomId = bookingDto.RoomId,
                 StartTime = start, 
-                EndTime = end 
+                EndTime = end, 
+                IsStudySession = bookingDto.IsStudySession
             };
             bool returnOk = await _bookingRepository.CreateAsync(newBooking); 
             if (returnOk)
@@ -140,7 +141,8 @@ namespace StudyFlow.Controllers;
                 {
                     RoomId = newBooking.RoomId,
                     StartTime = newBooking.StartTime, 
-                    EndTime = newBooking.EndTime
+                    EndTime = newBooking.EndTime, 
+                    IsStudySession = bookingDto.IsStudySession
                 }); 
 
             _logger.LogWarning("[BookingAPIController] new Booking failed ", newBooking);
@@ -182,7 +184,7 @@ namespace StudyFlow.Controllers;
             {
                 return BadRequest("End Time must Be after StartTime.");
             }
-        //Check oiverlapo OK
+        //Check overlapo OK
             var overlap = await _bookingRepository.HasOverlapAsync(
                 bookingDto.RoomId, 
                 start, 
@@ -197,6 +199,7 @@ namespace StudyFlow.Controllers;
             booking.RoomId = bookingDto.RoomId;
             booking.StartTime = start;
             booking.EndTime = end;
+            booking.IsStudySession = bookingDto.IsStudySession;
 
             var returnOk = await _bookingRepository.UpdateAsync(booking);
 
@@ -205,7 +208,7 @@ namespace StudyFlow.Controllers;
                 RoomId = booking.RoomId, 
                 StartTime = start,
                 EndTime = end,
-               // IsStudySession = booking.IsStudySession
+                IsStudySession = booking.IsStudySession,
             });
             }
             _logger.LogWarning("[BookingApiController] Updating booking {bookingID} failed", id); 

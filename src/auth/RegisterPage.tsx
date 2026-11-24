@@ -1,0 +1,115 @@
+import {useState, useEffect} from 'react'; 
+import {useNavigate} from 'react-router-dom'; 
+import {Form, Button, Container, Alert, Spinner} from 'react-bootstrap';
+import * as authService from './AuthService';
+import { RegisterDto } from '../types/auth';
+
+export default function RegisterPage({ onRegistered } : {onRegistered? : () => void }) {
+    const [formData, setFormData] = useState<RegisterDto>({
+        username: '',
+        email:'',
+        password:'',
+        confirmPassword: '',
+    });
+    const [error,setError] = useState<string | null>(null); 
+    const [success, setSuccess] = useState<string | null>(null); 
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false); 
+    const navigate = useNavigate(); 
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({...formData, [e.target.name]: e.target.value}); 
+    };
+
+
+    useEffect(() => { // Clear timeout on unmount to prevent m emeory leaks
+        let timerID: ReturnType<typeof setTimeout>;
+
+        if (success) {
+            timerID = setTimeout(() => {
+                onRegistered ? onRegistered() : navigate('/login');
+            }, 2000); 
+        }
+        return () => clearTimeout(timerID);
+    }, [success, navigate]);
+
+    const handleSubmit = async (e: React.SubmitEvent) => {
+        e.preventDefault(); 
+        setError(null);
+        setSuccess(null);
+
+        if (formData.password !== formData.confirmPassword) {
+            setError('Passwords must match!');
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            await authService.register(formData); 
+            setSuccess('Registration successful! Redirecting to login...');
+        } catch (err) {
+            if (err instanceof Error){
+                setError(err.message); 
+            } else {
+                setError('an unkown error occured during registration')
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    }; 
+
+
+    return (
+
+        <Container className="mt-5" style={{ maxWidth: '500px'}}>
+        <h2>Register</h2>
+        {error && <Alert variant="danger">{error}</Alert>}
+        {success && <Alert variant="success">{success}</Alert>}
+
+        <Form onSubmit={handleSubmit}>
+
+            <Form.Group className="mb-3">
+                <Form.Label>Username</Form.Label>
+                <Form.Control type="text" name="username" value={formData.username} onChange={handleChange} disabled={isSubmitting || !!success} required/>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+                <Form.Label>Email</Form.Label>
+                <Form.Control type="email" name="email" value={formData.email}
+                onChange={handleChange} disabled={isSubmitting || !!success} required/>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+
+                <Form.Label>Password</Form.Label>
+                <Form.Control type="password" name="password" value={formData.password}
+                onChange={handleChange} disabled={isSubmitting || !!success} required/>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+                <Form.Label>Confirm Password</Form.Label>
+                <Form.Control type="password" name="confirmPassword" value={formData.confirmPassword}
+                onChange={handleChange} disabled={isSubmitting || !!success} required/>
+            </Form.Group>
+
+            <Button variant="primary" type="submit" disabled={isSubmitting || !!success}>
+                {isSubmitting ? (
+                    <>
+                    <Spinner animation="border" size="sm" className="me-2" />
+                    Registering...
+                    </>
+                ):
+                (
+                    'Register'
+                )}
+
+
+            </Button>
+        </Form>
+        </Container>
+
+    ); 
+
+
+
+}

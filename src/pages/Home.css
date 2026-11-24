@@ -1,0 +1,20 @@
+
+.home-page {
+  text-align: left;
+}
+
+.home-page .home-title {
+  color: #172b4d;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.2;
+  margin-top: 0;
+}
+
+.home-page .home-image {
+  height: 350px;
+  object-fit: cover;
+}
+
+.home-page .home-welcome {
+  width: 100%;
+}

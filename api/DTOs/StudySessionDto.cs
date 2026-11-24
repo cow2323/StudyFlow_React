@@ -2,13 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StudyFlow.DTOs;
 
-public class StudySessionDto
+public class StudySessionDto : BookingDto
 {
-    // Sent to React so it can edit/delete/join a session. Ignored on create.
-    public int Id { get; set; }
-
-    [Range(1, int.MaxValue, ErrorMessage = "Value Must be 1 or greater")]
-    public int RoomId { get; set; }
 
     [Required]
     [StringLength(100)]
@@ -21,11 +16,6 @@ public class StudySessionDto
     [StringLength(1000)]
     public string? Description { get; set; }
 
-    [Required]
-    public DateTime StartTime { get; set; }
-
-    [Required]
-    public DateTime EndTime { get; set; }
 
     public bool IsPublic { get; set; } = true;
 
