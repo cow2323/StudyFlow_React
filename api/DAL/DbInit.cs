@@ -23,7 +23,9 @@ namespace StudyFlow.DAL;
 
 
 var authContext = serviceScope.ServiceProvider.GetRequiredService<AuthDbContext>(); 
-authContext.Database.Migrate(); //Migrates existing DB / and creates AuthDB if missing
+//authContext.Database.Migrate(); //Migrates existing DB / and creates AuthDB if missing
+
+authContext.Database.EnsureCreated();
 
 var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<AuthUser>>(); 
     {

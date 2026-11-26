@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "frontend": "vite --open",
-    "backend": "dotnet run --project ./api/api.csproj",
-    "watch": "dotnet watch --project ./api/api.csproj",
+    "backend": "dotnet run --project ../api/api.csproj",
+    "watch": "dotnet watch --project ../api/api.csproj",
     "dev": "concurrently -k -s first \"npm run backend\" \"wait-on tcp:5245 && npm run frontend\"",
     "build": "eslint . && vite build",
     "lint": "eslint .",
