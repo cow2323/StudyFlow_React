@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { createBooking } from "../services/bookingService";
+import { createBooking } from "../services/BookingService";
+import {useAuth} from '../auth/AuthContext';
 
 function BookingForm({ selectedRoomId = "" }) {
+  const {user} = useAuth(); // get user 
   const [roomId, setRoomId] = useState(selectedRoomId);
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -144,13 +146,13 @@ function BookingForm({ selectedRoomId = "" }) {
           </p>
         )}
 
-        <button
+        { user && (<button
           type="submit"
           className="btn btn-primary w-100 py-2"
           disabled={saving}
         >
           {saving ? "Booking..." : "Book Room"}
-        </button>
+        </button>)}
       </form>
     </div>
   );

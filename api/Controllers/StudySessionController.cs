@@ -283,6 +283,7 @@ public class StudySessionAPIController : ControllerBase
         Description = session.Description,
         StartTime = session.StartTime,
         EndTime = session.EndTime,
+        IsStudySession = true, 
         IsPublic = session.IsPublic,
         ParticipantCount = session.Participants.Count
     };

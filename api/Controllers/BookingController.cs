@@ -46,6 +46,7 @@ namespace StudyFlow.Controllers;
                 IEnumerable<Booking> bookingList = bookings.OrderBy(b => b.StartTime);
                 var bookingDtos = bookingList.Select(booking => new BookingDto
                 {
+                    Id = booking.Id, 
                     RoomId = booking.RoomId,
                     StartTime = booking.StartTime,
                     EndTime = booking.EndTime
@@ -67,6 +68,7 @@ namespace StudyFlow.Controllers;
         if (booking !=null)
         {
             return Ok(new BookingDto{
+                Id = booking.Id, 
                 RoomId = booking.RoomId, 
                 StartTime = booking.StartTime,
                 EndTime = booking.EndTime,
@@ -75,7 +77,7 @@ namespace StudyFlow.Controllers;
         }
 
           _logger.LogWarning("[BookingApiController] Get booking {bookingID} failed", id); 
-            return StatusCode(500, "Internal Server Error");
+            return StatusCode(404, "Booking not found");
     }
        
 
@@ -92,6 +94,7 @@ namespace StudyFlow.Controllers;
             DateTime start = bookingDto.StartTime.ToUniversalTime();
             DateTime end = bookingDto.EndTime.ToUniversalTime();
 
+            Console.WriteLine("DTO from booking" + bookingDto.ToString()); 
 
             //Legg Til Hent Bruker 
 
@@ -107,7 +110,7 @@ namespace StudyFlow.Controllers;
             }
 
 
-            if (start < DateTime.Now)
+            if (start < DateTime.UtcNow)
             {
                return BadRequest("Start Time must be later");
             }
@@ -136,14 +139,15 @@ namespace StudyFlow.Controllers;
                 IsStudySession = bookingDto.IsStudySession
             };
             bool returnOk = await _bookingRepository.CreateAsync(newBooking); 
-            if (returnOk)
+            if (returnOk){
                 return CreatedAtAction(nameof(BookingList), new BookingDto
                 {
                     RoomId = newBooking.RoomId,
                     StartTime = newBooking.StartTime, 
                     EndTime = newBooking.EndTime, 
                     IsStudySession = bookingDto.IsStudySession
-                }); 
+                });
+                }
 
             _logger.LogWarning("[BookingAPIController] new Booking failed ", newBooking);
 
@@ -175,7 +179,7 @@ namespace StudyFlow.Controllers;
             if (booking.UserId != userId) return Forbid();
 
 
-             if (start < DateTime.Now)
+             if (start < DateTime.UtcNow)
             {
                return BadRequest("Start Time must be later");
             }

@@ -128,6 +128,13 @@ builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<IStudySessionRepository, StudySessionRepository>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 
+// Fresh StudyFlow DB on every dev start. Must run before any DbContext opens the file.
+if (builder.Environment.IsDevelopment())
+{
+    foreach (var f in new[] { "StudyFlowDatabase.db", "StudyFlowDatabase.db-wal", "StudyFlowDatabase.db-shm" })
+        File.Delete(f);
+}
+
 var loggerConfiguration = new LoggerConfiguration()
    .MinimumLevel.Warning()
    .WriteTo.File($"Logs/api_{DateTime.Now:yyyyMMdd_HHmmss}.log");

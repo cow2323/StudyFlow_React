@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
 using StudyFlow.Models;
+using System; 
 
 
 
@@ -15,7 +16,6 @@ namespace StudyFlow.DAL;
             
             using var serviceScope = app.ApplicationServices.CreateScope(); 
             StudyFlowDbContext context = serviceScope.ServiceProvider.GetRequiredService<StudyFlowDbContext>();
-            context.Database.EnsureDeleted(); 
             context.Database.EnsureCreated();
 
 
@@ -117,7 +117,25 @@ var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<Au
     
             }
 
-        }}
+
+        context.Bookings.Add(new Booking
+        {
+            UserId = "7be159ee-ae72-4e8e-ac45-c4a288deded6",
+            RoomId = 1,
+            StartTime = Convert.ToDateTime("2026-11-12 09:00:00"),
+            EndTime = Convert.ToDateTime("2026-11-12 10:00:00")
+
+
+            
+        }); 
+
+        context.SaveChanges();
+
+        }
+        
+        
+        
+        }
     
     
     
