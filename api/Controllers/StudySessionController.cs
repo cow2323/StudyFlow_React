@@ -243,6 +243,39 @@ public class StudySessionAPIController : ControllerBase
     }
 
 
+
+    [HttpDelete("/leave/${id:int}")]
+    [Authorize]
+    public async Task<IActionResult> Leave(int id)
+    {
+
+        //Leave method
+
+        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Must be logged in");
+        }
+
+        var session = await _sessionRepository.GetById(id);
+        if (session == null)
+        {
+            return NotFound("Study session not found");
+        }
+
+
+        bool returnOk = await _sessionRepository.DeleteParticipantAsync(userId, session); 
+        if (returnOk)
+        {
+            return NoContent();
+        }
+
+        _logger.LogWarning("[StudySessionAPIController] Deleting study session participant failed");
+        return StatusCode(500, "Internal Server Error");
+
+    }
+
+
     // Shared rules for Create and Edit. Returns an error message, or null if valid.
     private async Task<string?> ValidateSessionAsync(int roomId, DateTime start, DateTime end, int? excludeBookingId = null)
     {

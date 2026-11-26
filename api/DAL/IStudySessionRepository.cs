@@ -16,6 +16,8 @@ namespace StudyFlow.DAL
 
         Task<bool> AddParticipantAsync(StudySessionParticipant participant);
 
+        Task<bool> DeleteParticipantAsync(String userId, StudySession session);
+
         // Returns null if the room does not exist.
         Task<int?> GetRoomCapacity(int roomId);
     }

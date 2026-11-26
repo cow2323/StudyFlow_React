@@ -110,28 +110,28 @@ export async function deleteBooking(id:number): Promise<void>{
     }
 }
 
-/* not needed
-
-
-export async function deleteStudySession(id:number): Promise<void>{
-    const response = await fetch (`${API_URL}/api/StudySessionAPI/delete/${id}`,{
-        method:'DELETE',
-    })
- if (!response.ok) {
-        throw new Error(`Failed to delete item (status)`)
-    }
-}
-
-*/ 
-
 export async function joinStudySession(session: StudySession): Promise<StudySession>{
     const response = await fetch (`${API_URL}/api/StudySessionAPI/join/${session.id}`,
         {method:'PUT', 
         headers: getAuthHeaders(),
-      body:JSON.stringify(session)})
+      body:JSON.stringify(session)});
 
       return handleResponse(response);
       
 }
+
+export async function leaveStudySession(session: StudySession) : Promise<void> {
+    const response = await fetch (`${API_URL}/api/StudySessionAPI/leave/${session.id}`,{
+        headers: getAuthHeaders(),
+        method:'DELETE'
+
+    });
+
+    return handleResponse(response);
+
+}
+
+
+
 
 

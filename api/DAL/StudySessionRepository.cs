@@ -119,6 +119,26 @@ namespace StudyFlow.DAL
             }
         }
 
+        public async Task<bool> DeleteParticipantAsync(String userId, StudySession session)
+        {
+            var participant = await _context.StudySessionParticipants.FirstOrDefaultAsync(sP => (userId == sP.UserId && sP.Session == session));
+
+
+            try
+            {
+                _context.StudySessionParticipants.Remove(participant);
+                await _context.SaveChangesAsync(); 
+                return true;
+            }
+
+            catch (Exception e)
+            {
+                _logger.LogError("[StudySessionRepository] DeleyeParticipantAsync failed, error message: {Error}", e.Message);
+                return false;
+            }
+
+        }
+
         public async Task<int?> GetRoomCapacity(int roomId)
         {
             var room = await _context.Rooms.FindAsync(roomId);
