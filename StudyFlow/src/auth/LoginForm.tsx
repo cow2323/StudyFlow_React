@@ -36,17 +36,6 @@ export default function LoginForm({onLogin}: {onLogin? : () => void}) {
   return (
 
       <Container>
-
-    <div className="col-lg-5 bg-primary bg-gradient text-white p-5
-        d-flex flex-column justify-content-center">
-
-        <h2 className="fw-bold">🎓 StudyFlow</h2>
-
-        <p className="lead">
-            Your space to study together.
-        </p>
-
-    </div>
     
     <Form onSubmit={handleSubmit}>
       <Form.Group className="mb-3" controlId="formBasicUsername">

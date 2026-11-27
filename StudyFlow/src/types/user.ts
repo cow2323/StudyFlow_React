@@ -7,4 +7,5 @@ export interface User {
     exp: number; 
     iss: string; 
     aud: string; 
+    role?: string | string[];
 }

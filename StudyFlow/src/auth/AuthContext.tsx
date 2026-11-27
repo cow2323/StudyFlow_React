@@ -10,6 +10,8 @@ interface AuthContextType {
     login: (credentials: LoginDto) => Promise<void>;
     logout: () => void; 
     isLoading: boolean;
+    isAdmin: boolean; 
+
 }
 
 interface AuthProviderProps {
@@ -62,8 +64,10 @@ export function AuthProvider({children } : AuthProviderProps) {
         setToken(null);
     };
 
+    const isAdmin =  !!user && (Array.isArray(user.role) ? user.role?.includes('Admin') : user.role ==='Admin'); 
+
     return ( //provide context to children
-        <AuthContext.Provider value={{ user, token, login, logout, isLoading}}>
+        <AuthContext.Provider value={{ user, token, login, logout, isLoading, isAdmin}}>
             {children}
         </AuthContext.Provider>
     );

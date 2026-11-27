@@ -39,6 +39,7 @@ namespace StudyFlow.Controllers
 
             if (result.Succeeded)
             {   // User successfully created
+                await _userManager.AddToRoleAsync(user, "User");
                 _logger.LogInformation("[AuthAPIController] User Registered for {@username}", registerDto.Username);
                 return Ok(new { Message = "User Regiostered Successfully"}); 
             }
@@ -57,7 +58,7 @@ namespace StudyFlow.Controllers
             if (user != null && await _userManager.CheckPasswordAsync(user,loginDto.Password)) 
             { // Success case
                 _logger.LogInformation("[AuthAPICOntroller] user authorized for {@username}", loginDto.Username);
-                var token = GenerateJwtToken(user); 
+                var token = await GenerateJwtToken(user); 
                 return Ok(new {Token = token });
             }
             // Unauthorized attempt 
@@ -82,7 +83,7 @@ namespace StudyFlow.Controllers
         }
 
 
-        private string GenerateJwtToken(AuthUser user)
+        private async Task<string> GenerateJwtToken(AuthUser user)
         {
             /*=================
             // 1. Security Setup
@@ -109,7 +110,7 @@ namespace StudyFlow.Controllers
             the user. These include the username, email, and unique user ID.
             =======================================================
             */
-            var claims = new[]
+            var claims = new List<Claim> 
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName!), //Subject of token
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!), //Users Email                
@@ -119,6 +120,9 @@ namespace StudyFlow.Controllers
                 
             
             }; 
+            var roles = await _userManager.GetRolesAsync(user); 
+
+            claims.AddRange(roles.Select(r => new Claim("role", r))); 
 
 
             /* 

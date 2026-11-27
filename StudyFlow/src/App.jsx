@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import StudySession from "./components/StudySession";
 import BookingForm from "./components/BookingForm";
 import UserBookings from "./components/UserBookings"; 
+import ProtectedRoute from "./auth/ProtectedRoute";
 import Rooms from "./components/Rooms";
 import AuthPage from "./auth/AuthPage";
 import { AuthProvider } from "./auth/AuthContext";
@@ -15,10 +16,12 @@ function App() {
         <Routes>
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<Home />} />
+            <Route element={<ProtectedRoute />}>
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/sessions" element={<StudySession />} />
             <Route path="/booking" element={<BookingForm />} />
             <Route path="/bookings" element={<UserBookings />} />
+            </Route>
 
             <Route path="/login" element={<AuthPage />} />
           </Route>

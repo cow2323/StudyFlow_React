@@ -27,7 +27,29 @@ var authContext = serviceScope.ServiceProvider.GetRequiredService<AuthDbContext>
 
 authContext.Database.EnsureCreated();
 
-var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<AuthUser>>(); 
+var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<AuthUser>>();
+var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>(); 
+
+String[] roles = {"Admin", "User"}; 
+
+
+foreach (var role in roles)
+        {
+            if (!roleManager.RoleExistsAsync(role).Result)
+                roleManager.CreateAsync(new IdentityRole(role)).Wait();
+        }
+
+//Create admin user if not created already
+var admin = userManager.FindByNameAsync("admin").Result; 
+if (admin == null )
+        {
+            admin = new AuthUser {UserName = "admin", Email="admin@studyflow.com"}; 
+            userManager.CreateAsync(admin, "Admin123!").Wait(); 
+        }
+
+if (!userManager.IsInRoleAsync(admin, "Admin").Result)
+    userManager.AddToRoleAsync(admin, "Admin").Wait();
+
     {
             var seedUsers = new List<AuthUser> {
                 new AuthUser { UserName = "user1", Email = "user1@users.com"},
@@ -118,6 +140,8 @@ var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<Au
             
     
             }
+
+        
 
 
         context.Bookings.Add(new Booking

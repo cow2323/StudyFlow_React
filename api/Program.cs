@@ -57,7 +57,11 @@ builder.Services.AddAuthentication(options =>
      // OBS: set to true in production
     options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = new TokenValidationParameters()
-    {
+    {   
+        RoleClaimType = "role", //Add Role Based Authorization
+        NameClaimType = JwtRegisteredClaimNames.Sub,
+
+
         ValidateIssuer = true, //validate token issuer is correct
         ValidateAudience = true,//validate token recipent correect
         ValidateLifetime = true,

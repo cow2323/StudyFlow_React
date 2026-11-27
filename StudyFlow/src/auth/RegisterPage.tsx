@@ -61,8 +61,7 @@ export default function RegisterPage({ onRegistered } : {onRegistered? : () => v
 
     return (
 
-        <Container className="mt-5" style={{ maxWidth: '500px'}}>
-        <h2>Register</h2>
+        <Container className="mt-5">
         {error && <Alert variant="danger">{error}</Alert>}
         {success && <Alert variant="success">{success}</Alert>}
 
