@@ -47,6 +47,13 @@ export async function getStudySessionById(id: number): Promise<StudySession>{
         return handleResponse<StudySession>(response); 
     }
 
+export async function getStudySessionByUser(): Promise<StudySession[]>{
+    const response = await fetch(`${API_URL}StudySessionAPI/byuser`, {
+        headers: getAuthHeaders()
+    });
+    return handleResponse<StudySession[]>(response); 
+}
+
 export async function createBooking(booking: Booking): Promise<Booking> {
     const response = await fetch(`${API_URL}/api/BookingAPI/create`, {
         method: 'POST',

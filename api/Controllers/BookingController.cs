@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using StudyFlow.Models;
 using StudyFlow.DTOs; 
 using StudyFlow.DAL;

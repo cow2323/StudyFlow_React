@@ -4,6 +4,7 @@ using StudyFlow.Models;
 using StudyFlow.DTOs;
 using StudyFlow.DAL;
 using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace StudyFlow.Controllers;
 
@@ -61,6 +62,44 @@ public class StudySessionAPIController : ControllerBase
         }
 
         return Ok(ToDto(session));
+    }
+
+    [HttpGet("byuser")]
+    [Authorize]
+    public async Task<IActionResult> GetUserStudySessions()
+    {
+
+        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized("Must be logged in");
+        }
+
+        //Get All sessions
+
+        var sessions = await _sessionRepository.GetAll();
+
+        //Find all sessions related to a particular User ID
+       if (sessions == null)
+        {
+            _logger.LogError("[StudySessionAPIController] Study SessionList could not be found in method GetStudySessionsByID"); 
+            return NotFound("StudySessionsNotFound");
+        }
+
+        sessions = sessions.Where(s => s.UserId == userId).OrderBy(s => s.StartTime); 
+        
+
+         if (sessions == null)
+        {
+            _logger.LogError("[StudySessionAPIController] Study SessionList could not be found in method GetStudySessionsByID"); 
+            return NotFound("StudySessionsNotFound");
+        }
+
+        var sessionDtos = sessions.Select(s => ToDto(s)); 
+
+        return Ok(sessionDtos); 
+        
     }
 
 
