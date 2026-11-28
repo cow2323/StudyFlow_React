@@ -41,7 +41,7 @@ public class StudySessionAPIController : ControllerBase
             _logger.LogError("[StudySessionAPIController] Session list cannot be found while executing GetAll()");
             return NotFound("Session list not found");
         }
-        IEnumerable<StudySession> sessionList = sessions.OrderBy(s => s.StartTime); 
+        IEnumerable<StudySession> sessionList = sessions.OrderBy(s => s.StartTime);
         var sessionDtos = sessionList.Select(ToDto);
 
         return Ok(sessionDtos);
@@ -244,7 +244,7 @@ public class StudySessionAPIController : ControllerBase
 
 
 
-    [HttpDelete("/leave/${id:int}")]
+    [HttpDelete("leave/{id:int}")]
     [Authorize]
     public async Task<IActionResult> Leave(int id)
     {
@@ -264,7 +264,7 @@ public class StudySessionAPIController : ControllerBase
         }
 
 
-        bool returnOk = await _sessionRepository.DeleteParticipantAsync(userId, session); 
+        bool returnOk = await _sessionRepository.DeleteParticipantAsync(userId, session);
         if (returnOk)
         {
             return NoContent();
@@ -316,7 +316,7 @@ public class StudySessionAPIController : ControllerBase
         Description = session.Description,
         StartTime = session.StartTime,
         EndTime = session.EndTime,
-        IsStudySession = true, 
+        IsStudySession = true,
         IsPublic = session.IsPublic,
         ParticipantCount = session.Participants.Count
     };
